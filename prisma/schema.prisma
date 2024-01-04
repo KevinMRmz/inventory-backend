@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  username String
+  email    String @unique
+  password String
+  role     String @default("USER")
+
+  // Relationship with the Order model, a user can have multiple orders
+  order Order[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+
+  // Relationship with the Product model, a category can have multiple products
+  products Product[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+
+  branch      String
+  model       String
+  description String
+  serial_no   String
+  amount      Int     @default(1)
+  isAvailable Boolean @default(false)
+
+  // Relationship with the Category model, one product is associated with one category
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int      @map("category_id")
+
+  // Relationship with the Order model, a product can be associated with one order
+  order Order?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  description String
+
+  // Relationship with the product model, one order is assigned to one product
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @unique @map("product_id")
+
+  // Relationship with the users model, one order is assigned to one user
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique @map("user_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
