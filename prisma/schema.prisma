@@ -30,6 +30,8 @@ model User {
 model Category {
   id Int @id @default(autoincrement())
 
+  categoryName String @unique @map("category_name")
+
   // Relationship with the Product model, a category can have multiple products
   products Product[]
 
@@ -44,14 +46,13 @@ model Product {
 
   branch      String
   model       String
-  description String
-  serial_no   String
-  amount      Int     @default(1)
+  description String?
+  serial_no   String  @unique
   isAvailable Boolean @default(false)
 
   // Relationship with the Category model, one product is associated with one category
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int      @map("category_id")
+  category   Category @relation(fields: [categoryName], references: [categoryName])
+  categoryName String @map("category_name")
 
   // Relationship with the Order model, a product can be associated with one order
   order Order?
